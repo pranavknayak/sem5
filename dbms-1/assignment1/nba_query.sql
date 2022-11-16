@@ -29,6 +29,7 @@ GROUP BY ilkid
 HAVING SUM(gp) > 500
 ORDER BY eff desc
 LIMIT 10;
+
 --4.4
 WITH games_per_year(ilkid, year, gp) as (
   SELECT ilkid, year, SUM(gp)
@@ -41,11 +42,16 @@ games_in_1990(ilkid, year, gp) as (
   GROUP BY year, ilkid
   HAVING year=1990
 )
+
 SELECT DISTINCT COUNT(ilkid)
 FROM games_in_1990
 WHERE games_in_1990.gp > (SELECT MAX(gp)
                           FROM games_per_year
-                          WHERE games_per_year.ilkid = games_in_1990.ilkid AND games_per_year.year != 1990);
+                          WHERE games_per_year.ilkid = games_in_1990.ilkid AND games_per_year.year != 1990)
+                          OR (SELECT COUNT(*)
+                              FROM games_per_year
+                              WHERE games_per_year.ilkid = games_in_1990.ilkid AND games_per_year.year != 1990) = 0;
+
 
 
 --4.5
